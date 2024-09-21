@@ -16,6 +16,15 @@ const mainVariant = {
   },
 };
 
+const secondaryVariant = {
+  initial: {
+    opacity: 0,
+  },
+  animate: {
+    opacity: 1,
+  },
+};
+
 const FileUpload = ({
   onChange,
   title = "Upload file",
@@ -144,6 +153,12 @@ const FileUpload = ({
                   <IconUpload className="h-4 w-4 text-neutral-600 dark:text-neutral-300" />
                 )}
               </motion.div>
+            )}
+            {!files.length && (
+              <motion.div
+                variants={secondaryVariant}
+                className="absolute opacity-0 border border-dashed border-sky-400 inset-0 z-30 bg-transparent flex items-center justify-center h-32 mt-4 w-full max-w-[8rem] mx-auto rounded-md"
+              ></motion.div>
             )}
           </div>
         </div>
