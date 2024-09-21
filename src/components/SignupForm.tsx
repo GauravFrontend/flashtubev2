@@ -1,15 +1,36 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import { Label } from "./ui/label";
 import { Input } from "./ui/input";
 import { cn } from "@/lib/utils";
-import { FileUploadAvatar } from "./FileUploadAvatar";
-import { FileUploadCoverImage } from "./FileUploadCoverImage";
+import FileUpload from "./ui/file-upload";
 
 export function SignupForm() {
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const [avatarFiles, setAvatarFiles] = useState<File[]>([]);
+  const [coverImageFiles, setCoverImageFiles] = useState<File[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  const handleAvatarUpload = (files: File[]) => {
+    setAvatarFiles(files);
+  };
+
+  const handleCoverUpload = (files: File[]) => {
+    setCoverImageFiles(files);
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log("Form submitted");
+    setLoading(true);
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+    console.log("Form submitted", { avatarFiles, coverImageFiles });
+    setLoading(false);
+    // Handle your API call here
+    const formData = new FormData();
+    avatarFiles.forEach((file) => formData.append("avatar", file));
+    coverImageFiles.forEach((file) => formData.append("coverImage", file));
+
+    // Make your API call with formData
+    // await apiCall(formData);
   };
   return (
     <>
@@ -55,20 +76,56 @@ export function SignupForm() {
             </LabelInputContainer>
 
             <button
-              className="bg-gradient-to-br relative group/btn from-black dark:from-zinc-900 dark:to-zinc-900 to-neutral-600 block dark:bg-zinc-800 w-full text-white rounded-md h-10 font-medium shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset] dark:shadow-[0px_1px_0px_0px_var(--zinc-800)_inset,0px_-1px_0px_0px_var(--zinc-800)_inset]"
+              className="bg-gradient-to-br mt-10 relative group/btn from-black dark:from-zinc-900 dark:to-zinc-900 to-neutral-600 block dark:bg-zinc-800 w-full text-white rounded-md h-10 font-medium shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset] dark:shadow-[0px_1px_0px_0px_var(--zinc-800)_inset,0px_-1px_0px_0px_var(--zinc-800)_inset]"
               type="submit"
+              disabled={loading}
             >
-              Sign up &rarr;
-              <BottomGradient />
+              {loading ? (
+                <div className="flex items-center justify-center">
+                  <svg
+                    className="animate-spin h-5 w-5 mr-3 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8v8H4z"
+                    />
+                  </svg>
+                </div>
+              ) : (
+                <>
+                  Sign up &rarr;
+                  <BottomGradient />
+                </>
+              )}
             </button>
           </form>
         </div>
-        <div className="max-w-md w-full  rounded-none md:rounded-2xl p-4 md:p-8 shadow-input bg-white dark:bg-black">
-          <div className="h-1/2">
-            <FileUploadAvatar />
+        <div className="max-w-md w-full flex flex-col gap-2 rounded-none md:rounded-2xl p-4 md:p-8 shadow-input bg-white dark:bg-black">
+          <div className="w-full max-w-4xl border border-dashed bg-white dark:bg-black border-neutral-200 dark:border-neutral-800 rounded-lg">
+            <FileUpload
+              title="Upload Avatar"
+              files={avatarFiles}
+              onChange={handleAvatarUpload}
+            />
           </div>
-          <div className="h-1/2">
-            <FileUploadCoverImage />
+          <div className="w-full max-w-4xl border border-dashed bg-white dark:bg-black border-neutral-200 dark:border-neutral-800 rounded-lg">
+            <FileUpload
+              title="Upload Cover Image"
+              files={coverImageFiles}
+              onChange={handleCoverUpload}
+            />
           </div>
         </div>
       </div>
