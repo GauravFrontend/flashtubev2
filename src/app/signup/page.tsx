@@ -5,8 +5,11 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import FileUpload from "@/components/ui/file-upload";
 import axios from "axios";
+import { useRouter } from "next/navigation";
 
 export default function SignupForm() {
+  const router = useRouter();
+
   // State management for form inputs
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -46,8 +49,6 @@ export default function SignupForm() {
       avatarFiles.forEach((file) => formData.append("avatar", file));
       coverImageFiles.forEach((file) => formData.append("coverImage", file));
 
-      console.log(formData, "while registeriing");
-
       // Make the API call
       const response = await axios.post(
         "http://localhost:8000/api/v1/users/register",
@@ -60,7 +61,22 @@ export default function SignupForm() {
       );
 
       setSuccess("User registered successfully!");
-      console.log("Response:", response.data);
+      console.log("ResponseRegister:", response.data);
+
+      if (response) {
+        const loginResponse = await axios.post(
+          "http://localhost:8000/api/v1/users/login",
+          {
+            email: email, // or username, depending on your form
+            password,
+          }
+        );
+        console.log("ResponseLogin:", loginResponse.data);
+
+        router.push("/");
+        setSuccess("User LoggedIn successfully!");
+      }
+
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       setError(

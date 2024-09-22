@@ -11,9 +11,16 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
-import { NavbarDemo } from "@/components/Navbar";
+import { connect } from "react-redux";
+import { RootState } from "./rootStore";
 
-export default function Home() {
+interface Props {
+  userData: any;
+}
+
+const Home = (props: Props) => {
+  const { userData } = props;
+
   const links = [
     {
       label: "Dashboard",
@@ -45,11 +52,12 @@ export default function Home() {
     },
   ];
   const [open, setOpen] = useState(false);
+  const dynamicLabel = userData?.username;
   return (
     <div
       className={cn(
         "rounded-md flex flex-col md:flex-row bg-gray-100 dark:bg-neutral-800 w-full flex-1 mx-auto border border-neutral-200 dark:border-neutral-700 overflow-hidden",
-        "h-screen" // for your use case, use `h-screen` instead of `h-[60vh]`
+        "h-screen"
       )}
     >
       <Sidebar open={open} setOpen={setOpen}>
@@ -65,11 +73,11 @@ export default function Home() {
           <div>
             <SidebarLink
               link={{
-                label: "Manu Arora",
+                label: dynamicLabel,
                 href: "#",
                 icon: (
                   <Image
-                    src="https://assets.aceternity.com/manu.png"
+                    src={userData?.avatar}
                     className="h-7 w-7 flex-shrink-0 rounded-full"
                     width={50}
                     height={50}
@@ -81,12 +89,22 @@ export default function Home() {
           </div>
         </SidebarBody>
       </Sidebar>
-      <div className="flex-1 overflow-y-auto h-full">
-        <Dashboard />
+
+      <div className="flex-1 h-full">
+        <div className="flex flex-1">
+          {/* Outer fixed div with border radius */}
+          <div className="p-2 md:p-10 rounded-tl-2xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 flex flex-col gap-2 flex-1 w-full h-full fixed">
+            {/* Scrollable inner div */}
+            <div className="h-full overflow-y-auto bg-gray-800 w-full">
+              {/* Render the Dashboard component instead of placeholder content */}
+              <Dashboard />
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
-}
+};
 export const Logo = () => {
   return (
     <Link
@@ -118,14 +136,19 @@ export const LogoIcon = () => {
 // Dummy dashboard component with content
 const Dashboard = () => {
   return (
-    <div className="flex flex-1">
-      <div className="p-2 md:p-10 rounded-tl-2xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 flex flex-col gap-2 flex-1 w-full h-full">
-        {/* Large content div to trigger scrolling */}
-        <NavbarDemo />
-        <div className="h-[1600px] bg-gray-800 overflow-y-auto  w-full">
-          lkajdfljalsdfkjksjfl
-        </div>
+    <>
+      <div className="text-white bg-slate-900 h-[4000px] p-4">
+        <p>Line 1 - Scroll to see more content</p>
+        {Array.from({ length: 100 }, (_, i) => (
+          <p key={i}>Scrollable content line {i + 2}</p>
+        ))}
       </div>
-    </div>
+    </>
   );
 };
+
+const mapStateToProps = (state: RootState) => ({
+  userData: state.auth.user,
+});
+
+export default connect(mapStateToProps, null)(Home);

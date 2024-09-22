@@ -4,11 +4,20 @@ import { cn } from "@/lib/utils";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import axios from "axios";
+import { useRouter } from "next/navigation";
+import { connect } from "react-redux";
+import { loginSuccess } from "../rootStore/auth.reducer";
 
-export default function SignupForm() {
+interface Props {
+  loginSuccess: typeof loginSuccess;
+}
+
+const SignupForm = (props: Props) => {
+  const { loginSuccess } = props;
   const [loading, setLoading] = useState(false);
   const [identity, setIdentity] = useState("");
   const [password, setPassword] = useState("");
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -22,12 +31,25 @@ export default function SignupForm() {
 
       console.log(payload);
 
-      const response = await axios.post(
+      const data = await axios.post(
         "http://localhost:8000/api/v1/users/login", // Updated URL
         payload
       );
+      router.push("/");
+      const mainLoginResponse = data?.data?.data;
+      console.log(data.data.data.user, mainLoginResponse, "nhi aya kya print");
 
-      console.log("Response:", response.data);
+      if (data) {
+        loginSuccess({
+          user: mainLoginResponse.user,
+          tokens: {
+            accessToken: mainLoginResponse.accessToken,
+            refreshToken: mainLoginResponse.refreshToken,
+          },
+        });
+      }
+
+      console.log("Response:", data);
       // You can redirect or show a success message here
     } catch (error) {
       console.error("Error logging in:", error);
@@ -112,7 +134,7 @@ export default function SignupForm() {
       </div>
     </div>
   );
-}
+};
 
 const BottomGradient = () => {
   return (
@@ -136,3 +158,9 @@ const LabelInputContainer = ({
     </div>
   );
 };
+
+const mapActionToProps = {
+  loginSuccess,
+};
+
+export default connect(null, mapActionToProps)(SignupForm);
