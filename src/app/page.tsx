@@ -15,6 +15,7 @@ import { connect } from "react-redux";
 import { RootState } from "./rootStore";
 
 interface Props {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   userData: any;
 }
 
@@ -23,8 +24,8 @@ const Home = (props: Props) => {
 
   const links = [
     {
-      label: "Dashboard",
-      href: "#",
+      label: "Upload",
+      href: "/login",
       icon: (
         <IconBrandTabler className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
       ),
@@ -93,9 +94,9 @@ const Home = (props: Props) => {
       <div className="flex-1 h-full">
         <div className="flex flex-1">
           {/* Outer fixed div with border radius */}
-          <div className="p-2 md:p-10 rounded-tl-2xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 flex flex-col gap-2 flex-1 w-full h-full fixed">
+          <div className=" overflow-hidden rounded-tl-2xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 flex flex-col gap-2 flex-1 w-[98%] h-full fixed">
             {/* Scrollable inner div */}
-            <div className="h-full overflow-y-auto bg-gray-800 w-full">
+            <div className="h-full overflow-y-auto bg-gray-800">
               {/* Render the Dashboard component instead of placeholder content */}
               <Dashboard />
             </div>
@@ -117,7 +118,7 @@ export const Logo = () => {
         animate={{ opacity: 1 }}
         className="font-medium text-black dark:text-white whitespace-pre"
       >
-        Acet Labs
+        FlashTube
       </motion.span>
     </Link>
   );
