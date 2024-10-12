@@ -1,99 +1,76 @@
-// src/pages/page.tsx
+"use client";
+import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import VideoCard from "@/app/dashboard/VideoCard";
-import React from "react";
+
+interface VideoType {
+  _id: string;
+  videoFile: string;
+  thumbnail: string;
+  title: string;
+  description: string;
+  duration: number;
+  views: number;
+  isPublished: boolean;
+  owner: string;
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+}
 
 const Page = () => {
-  // Array of dummy data to map over
-  const videoCards = [
-    {
-      thumbnail: "https://via.placeholder.com/320x180.png?text=Video+Thumbnail",
-      duration: "12:34",
-      profileImage: "https://via.placeholder.com/40.png?text=Profile",
-      title: "Example Video Title 1",
-      channelName: "Channel Name 1",
-      views: 123456,
-      timeAgo: "1 day ago",
-    },
-    {
-      thumbnail: "https://via.placeholder.com/320x180.png?text=Video+Thumbnail",
-      duration: "10:05",
-      profileImage: "https://via.placeholder.com/40.png?text=Profile",
-      title: "Example Video Title 2",
-      channelName: "Channel Name 2",
-      views: 654321,
-      timeAgo: "2 days ago",
-    },
-    {
-      thumbnail: "https://via.placeholder.com/320x180.png?text=Video+Thumbnail",
-      duration: "08:30",
-      profileImage: "https://via.placeholder.com/40.png?text=Profile",
-      title: "Example Video Title 3",
-      channelName: "Channel Name 3",
-      views: 789123,
-      timeAgo: "3 days ago",
-    },
-    {
-      thumbnail: "https://via.placeholder.com/320x180.png?text=Video+Thumbnail",
-      duration: "05:45",
-      profileImage: "https://via.placeholder.com/40.png?text=Profile",
-      title: "Example Video Title 4",
-      channelName: "Channel Name 4",
-      views: 456789,
-      timeAgo: "4 days ago",
-    },
-    {
-      thumbnail: "https://via.placeholder.com/320x180.png?text=Video+Thumbnail",
-      duration: "11:50",
-      profileImage: "https://via.placeholder.com/40.png?text=Profile",
-      title: "Example Video Title 5",
-      channelName: "Channel Name 5",
-      views: 321987,
-      timeAgo: "5 days ago",
-    },
-    {
-      thumbnail: "https://via.placeholder.com/320x180.png?text=Video+Thumbnail",
-      duration: "09:15",
-      profileImage: "https://via.placeholder.com/40.png?text=Profile",
-      title: "Example Video Title 6",
-      channelName: "Channel Name 6",
-      views: 987654,
-      timeAgo: "6 days ago",
-    },
-    {
-      thumbnail: "https://via.placeholder.com/320x180.png?text=Video+Thumbnail",
-      duration: "11:50",
-      profileImage: "https://via.placeholder.com/40.png?text=Profile",
-      title: "Example Video Title 5",
-      channelName: "Channel Name 5",
-      views: 321987,
-      timeAgo: "5 days ago",
-    },
-    {
-      thumbnail: "https://via.placeholder.com/320x180.png?text=Video+Thumbnail",
-      duration: "09:15",
-      profileImage: "https://via.placeholder.com/40.png?text=Profile",
-      title: "Example Video Title 6",
-      channelName: "Channel Name 6",
-      views: 987654,
-      timeAgo: "6 days ago",
-    },
-  ];
+  const router = useRouter();
+  const [videos, setVideos] = useState<VideoType[]>(); // State to store videos
+  const [loading, setLoading] = useState(true); // Loading state for fetching
+
+  // Fetch the videos from API on component mount
+  useEffect(() => {
+    const fetchVideos = async () => {
+      try {
+        const response = await fetch(
+          "http://localhost:8000/api/v1/users/videos"
+        );
+        const data = await response.json();
+
+        if (data.success) {
+          setVideos(data.data);
+        }
+      } catch (error) {
+        console.error("Error fetching videos:", error);
+      } finally {
+        setLoading(false); // Stop loading once fetch is done
+      }
+    };
+
+    fetchVideos();
+  }, []); // Empty dependency array ensures this runs only once on mount
+
+  if (loading) {
+    return <div>Loading...</div>; // Render loading state while fetching
+  }
 
   return (
     <>
-      <div className=" w-full h-full p-4">
+      <div className="w-full h-full p-4">
         {/* Flex container for video cards */}
         <div className="flex flex-wrap justify-start gap-3 pl-4">
-          {videoCards.map((video, index) => (
-            <div key={index}>
+          {videos?.map((video) => (
+            <div
+              key={video._id}
+              onClick={() => {
+                router.push("/dashboard/videoPage");
+              }}
+            >
               <VideoCard
-                thumbnail={video.thumbnail}
-                duration={video.duration}
-                profileImage={video.profileImage}
+                thumbnail={
+                  "https://via.placeholder.com/320x180.png?text=Video+Thumbnail"
+                }
+                duration={video.duration.toFixed(2)} // Format duration
+                profileImage="https://via.placeholder.com/40.png?text=Profile" // Placeholder profile image
                 title={video.title}
-                channelName={video.channelName}
+                channelName={video.owner} // Assuming 'owner' is the channel name
                 views={video.views}
-                timeAgo={video.timeAgo}
+                timeAgo={new Date(video.createdAt).toLocaleDateString()} // Display creation date as time ago
               />
             </div>
           ))}
